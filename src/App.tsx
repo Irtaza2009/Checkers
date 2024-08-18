@@ -16,7 +16,7 @@ function App() {
         setGame(game)
         setYourPlayerId(yourPlayerId)
 
-        if (action && action.name === "claimCell") selectSound.play()
+        if (action && action.name === "selectCell") selectSound.play()
       },
     })
   }, [])
@@ -26,29 +26,28 @@ function App() {
     return
   }
 
-  const { winCombo, cells, lastMovePlayerId, playerIds, freeCells } = game
+  const { cells, selectedCell, currentPlayer, playerIds, isJumping } = game
 
   return (
     <>
-      <div id="board" className={!lastMovePlayerId ? "initial" : ""}>
+      <div id="board">
         {cells.map((cell, cellIndex) => {
+          const isSelected = cellIndex === selectedCell
           const cellValue = cells[cellIndex]
 
           return (
             <button
               key={cellIndex}
-              onClick={() => Dusk.actions.claimCell(cellIndex)}
-              data-player={(cellValue !== null
-                ? playerIds.indexOf(cellValue)
-                : -1
-              ).toString()}
-              data-dim={String(
-                (winCombo && !winCombo.includes(cellIndex)) ||
-                  (!freeCells && !winCombo)
-              )}
-              {...(cells[cellIndex] ||
-              lastMovePlayerId === yourPlayerId ||
-              winCombo
+              onClick={() => {
+                if (selectedCell === null) {
+                  Dusk.actions.selectCell(cellIndex)
+                } else {
+                  Dusk.actions.movePiece(selectedCell, cellIndex)
+                }
+              }}
+              data-player={cellValue || ""}
+              data-selected={isSelected}
+              {...(cellValue || currentPlayer !== yourPlayerId
                 ? { "data-disabled": "" }
                 : {})}
             />
@@ -63,9 +62,7 @@ function App() {
             <li
               key={playerId}
               data-player={index.toString()}
-              data-your-turn={String(
-                playerIds[index] !== lastMovePlayerId && !winCombo && freeCells
-              )}
+              data-your-turn={String(currentPlayer === playerId)}
             >
               <img src={player.avatarUrl} />
               <span>

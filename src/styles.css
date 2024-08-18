@@ -21,8 +21,37 @@ main {
   max-width: min(90vh, 600px);
   aspect-ratio: 1;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(8, 1fr);
 }
+
+button {
+  position: relative;
+  background: transparent;
+  border: 1vw solid #e6e6e620; /* Adjusted for checkers */
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+button[data-player="1"] {
+  background: red;
+}
+
+button[data-player="2"] {
+  background: black;
+}
+
+button[data-selected="true"] {
+  outline: 3px solid yellow; /* Highlight selected piece */
+}
+
+button[data-disabled] {
+  cursor: not-allowed;
+}
+
+/* Optionally add more styles for checker piece, board colors, etc. */
 
 @keyframes right {
   0%,
@@ -42,18 +71,6 @@ main {
   50% {
     transform: translate(-20px);
   }
-}
-
-button {
-  position: relative;
-  background: transparent;
-  border: 1.3vw solid #e6e6e620;
-  border-left: 0;
-  border-top: 0;
-  width: 100%;
-  aspect-ratio: 1;
-  padding: 0;
-  margin: 0;
 }
 
 button:before {
@@ -92,16 +109,6 @@ button[data-player="0"]:before {
 button[data-player="1"]:before {
   background-image: url(./assets/o.svg);
   animation: scale-in 0.2s ease-in-out;
-}
-
-button:nth-child(3n) {
-  border-right: 0;
-}
-
-button:nth-child(7),
-button:nth-child(8),
-button:nth-child(9) {
-  border-bottom: 0;
 }
 
 button:not([data-disabled]) {
