@@ -1,36 +1,37 @@
 {
-  "name": "Checkers",
+  "name": "goblin-chess",
+  "description": "This is an ancient game with few twists. Destroy your opponent's King to win.",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
-    "build": "npm run lint && tsc && vite build",
-    "upload": "npm run build && npx dusk-cli@latest upload",
-    "lint": "eslint src",
-    "typecheck": "tsc --noEmit"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "dusk-games-sdk": "^4.21.13",
+    "@kickass-coderz/utils": "^0.0.2",
+    "eslint-config-prettier": "^8.9.0",
+    "eslint-plugin-prefer-arrow-functions": "^3.1.4",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "rune-games-sdk": "^4.11.3"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.1.1",
-    "@eslint/js": "^9.7.0",
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11",
-    "@vitejs/plugin-react": "^4.0.0",
-    "eslint": "^9.7.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react": "^7.35.0",
-    "eslint-plugin-react-hooks": "beta",
-    "globals": "^15.8.0",
-    "prettier": "^3.3.3",
-    "typescript": "^5.4.5",
-    "typescript-eslint": "^8.0.0-alpha.54",
-    "vite": "^5.2.11",
-    "vite-plugin-qrcode": "^0.2.2"
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitejs/plugin-react-swc": "^3.3.2",
+    "eslint": "^8.45.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
+    "eslint-plugin-rune": "^0.1.10",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "vite-plugin-rune": "^0.1.1"
   }
 }

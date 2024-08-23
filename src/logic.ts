@@ -1,103 +1,165 @@
-import type { PlayerId, DuskClient } from "dusk-games-sdk/multiplayer"
+import type { PlayerId, RuneClient } from "rune-games-sdk/multiplayer"
+import {
+  OwnedPiece,
+  Player,
+  SquareId,
+  initialBoardState,
+  BattleState,
+  Piece,
+  playerName,
+  boardSize,
+} from "./types"
+import { getPiece } from "./utils"
 
-export type Cells = (PlayerId | null)[]
 export interface GameState {
-  cells: Cells
-  selectedCell: number | null
-  currentPlayer: PlayerId | null
+  players: Record<string, Player>
+  playerToId: Record<Player, string>
+  board: Record<SquareId, OwnedPiece>
+  selectedSquare?: SquareId
+  currentPlayer: Player
+  battle?: BattleState
   playerIds: PlayerId[]
-  isJumping: boolean
-  // Add more state attributes if needed
+
+  notification?: {
+    message: string
+    timestamp: number
+  }
 }
 
 type GameActions = {
-  selectCell: (cellIndex: number) => void
-  movePiece: (fromCellIndex: number, toCellIndex: number) => void
+  movePiece: ({
+    squareId,
+    newSquareId,
+  }: {
+    squareId: SquareId
+    newSquareId: SquareId
+  }) => void
+  removePiece: ({ squareIds }: { squareIds: SquareId[] }) => void
 }
 
 declare global {
-  const Dusk: DuskClient<GameState, GameActions>
+  const Rune: RuneClient<GameState, GameActions>
 }
 
-function initializeBoard() {
-  const cells = new Array(64).fill(null)
+const endTurn = (game: GameState) => {
+  game.currentPlayer =
+    game.currentPlayer === Player.White ? Player.Black : Player.White
+}
 
-  for (let i = 0; i < 64; i++) {
-    if (Math.floor(i / 8) % 2 === 0) {
-      if (i % 2 === 1 && Math.floor(i / 8) < 3) cells[i] = "1" // Red pieces
-      if (i % 2 === 1 && Math.floor(i / 8) > 4) cells[i] = "2" // Black pieces
-    } else {
-      if (i % 2 === 0 && Math.floor(i / 8) < 3) cells[i] = "1" // Red pieces
-      if (i % 2 === 0 && Math.floor(i / 8) > 4) cells[i] = "2" // Black pieces
-    }
+const movePiece = (
+  { squareId, newSquareId }: { squareId: SquareId; newSquareId: SquareId },
+  { game }: { game: GameState }
+) => {
+  game.board[newSquareId] = game.board[squareId]
+  delete game.board[squareId]
+
+  // Promotion check
+  const [player, pieceType] = getPiece(game.board[newSquareId])
+  const [x, y] = newSquareId.split(",").map(Number)
+  if (pieceType === Piece.Checkers && (x === 0 || x === boardSize[1] - 1)) {
+    game.board[newSquareId] = `${player}${Piece.CheckersKing}`
   }
-
-  return cells
 }
 
-Dusk.initLogic({
+const checkGameOver = (game: GameState) => {
+  const whitePieces = Object.values(game.board).filter((piece) =>
+    piece.startsWith(Player.White)
+  ).length
+  const blackPieces = Object.values(game.board).filter((piece) =>
+    piece.startsWith(Player.Black)
+  ).length
+
+  if (whitePieces === 0) {
+    // Black wins
+    Rune.gameOver({
+      players: {
+        [game.playerToId[Player.Black]]: "WON",
+        [game.playerToId[Player.White]]: "LOST",
+      },
+    })
+  } else if (blackPieces === 0) {
+    // White wins
+    Rune.gameOver({
+      players: {
+        [game.playerToId[Player.White]]: "WON",
+        [game.playerToId[Player.Black]]: "LOST",
+      },
+    })
+  }
+}
+
+const removePiece = (
+  { squareIds }: { squareIds: SquareId[] },
+  { game }: { game: GameState }
+) => {
+  squareIds.forEach((squareId) => {
+    console.log(`Attempting to remove piece from ${squareId}`)
+
+    if (!game.board[squareId]) {
+      console.error(`No piece found at ${squareId}`)
+      throw Rune.invalidAction()
+    }
+
+    const [currentPlayer] = getPiece(game.board[squareId])
+
+    if (currentPlayer === game.currentPlayer) {
+      console.error(`Cannot remove own piece at ${squareId}`)
+      throw Rune.invalidAction()
+    }
+
+    delete game.board[squareId]
+    console.log(`Piece removed from ${squareId}`)
+  })
+}
+
+Rune.initLogic({
   minPlayers: 2,
   maxPlayers: 2,
-  setup: (allPlayerIds) => ({
-    cells: initializeBoard(),
-    selectedCell: null,
-    currentPlayer: allPlayerIds[0],
-    playerIds: allPlayerIds,
-    isJumping: false,
-  }),
+  setup: (allPlayerIds) => {
+    return {
+      players: {
+        [allPlayerIds[0]]: Player.White,
+        [allPlayerIds[1]]: Player.Black,
+      },
+      playerToId: {
+        [Player.White]: allPlayerIds[0],
+        [Player.Black]: allPlayerIds[1],
+      },
+      board: {
+        ...initialBoardState,
+      },
+      selectedSquare: undefined,
+      currentPlayer: Player.White,
+      battle: undefined,
+      playerIds: allPlayerIds,
+    }
+  },
   actions: {
-    selectCell: (cellIndex, { game, playerId }) => {
-      if (game.currentPlayer !== playerId) {
-        throw Dusk.invalidAction()
+    movePiece: ({ squareId, newSquareId }, { game }) => {
+      if (game.board[squareId] === undefined) {
+        throw Rune.invalidAction()
       }
 
-      if (game.selectedCell === null) {
-        if (game.cells[cellIndex] === playerId) {
-          game.selectedCell = cellIndex
-        }
-      } else {
-        // Implement move logic
-        if (canMove(game.selectedCell, cellIndex, game.cells)) {
-          game.cells[cellIndex] = game.cells[game.selectedCell]
-          game.cells[game.selectedCell] = null
-          game.selectedCell = null
-          game.currentPlayer = game.playerIds.find((id) => id !== playerId)
-          // Check for captures and promotions
-          checkForCaptures(game)
-        } else {
-          game.selectedCell = null
-        }
+      const [currentPlayer] = getPiece(game.board[squareId])
+
+      if (currentPlayer !== game.currentPlayer) {
+        throw Rune.invalidAction()
       }
+
+      if (game.board[newSquareId] !== undefined) {
+        // this requires battle
+
+        throw Rune.invalidAction()
+      }
+
+      movePiece({ squareId, newSquareId }, { game })
+
+      checkGameOver(game)
+
+      endTurn(game)
     },
-    movePiece: (
-      fromCellIndex: number,
-      toCellIndex: number,
-      { game, playerId }
-    ) => {
-      if (game.currentPlayer !== playerId) {
-        throw Dusk.invalidAction()
-      }
-
-      // Move logic with capture and promotion handling
-      if (canMove(fromCellIndex, toCellIndex, game.cells)) {
-        game.cells[toCellIndex] = game.cells[fromCellIndex]
-        game.cells[fromCellIndex] = null
-        game.currentPlayer = game.playerIds.find((id) => id !== playerId)
-        checkForCaptures(game)
-      }
+    removePiece: ({ squareIds }, { game }) => {
+      removePiece({ squareIds }, { game })
     },
   },
 })
-
-function canMove(
-  fromCellIndex: number,
-  toCellIndex: number,
-  cells: Cells
-): boolean {
-  // Implement movement logic
-  return true
-}
-
-function checkForCaptures(game: GameState) {
-  // Implement capture logic and promotion (kinging) if needed
-}
