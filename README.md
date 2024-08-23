@@ -2,7 +2,7 @@
 
 The classic **Checkers** game
 
-<img width="640" height="720" alt="image" src="https://github.com/Irtaza2009/Checkers/blob/main/Checkers.png" style="object-fit: none;">
+<img alt="image" src="https://github.com/Irtaza2009/Checkers/blob/main/Checkers.png">
 
 ## Play
 
