@@ -1,0 +1,322 @@
+.root {
+    display: flex;
+    position: relative;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 1280px;
+    width: 100%;
+    background-color: #eee9e9;
+}
+
+.gameName {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0 0 0 0;
+    color: #323232;
+    margin-bottom: 10px;
+}
+
+.boardWrapper {
+    width: 90%;
+    margin-top: 0;
+}
+
+.board {
+    width: 100%;
+    margin-top: auto;
+    display: grid;
+    grid-gap: 0;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: 0.6fr repeat(8, 1fr) 0.6fr;
+    grid-auto-flow: row;
+}
+
+.boardInner {
+    display: grid;
+    grid-gap: 0;
+    grid-template-columns: repeat(8, auto);
+    grid-template-rows: auto;
+    grid-auto-flow: row;
+    align-items: strech;
+    font-size: clamp(1rem, 2.5vw, 2rem);
+}
+
+.square {
+    font-size: 150%;
+    background-color: #cdc9c9;
+    color: #000;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.squareWhite {
+    color: #ffffff;
+}
+
+.squareBlack {
+    color: #000000;
+}
+
+.squareInner {
+    text-align: center;
+    align-self: center;
+}
+
+.squareSelected {
+    border: 2px solid #ffe4e1;
+}
+
+.squareOption {
+    background-color: #ffe4e1 !important;
+}
+
+.boardTop,
+.boardBottom {
+    display: grid;
+    align-items: stretch;
+    background-color: #eee9e9;
+    color: #323232;
+}
+
+.boardTop {
+    grid-column-start: 1;
+    grid-column-end: 9;
+    grid-row-start: 1;
+    grid-row-end: 1;
+}
+
+.boardBottom {
+    grid-column-start: 1;
+    grid-column-end: 9;
+    grid-row-start: 10;
+    grid-row-end: 10;
+}
+
+.boardDisabled {
+    pointer-events: none;
+}
+
+.square:nth-child(-2n + 9),
+.square:nth-child(9) ~ div:nth-child(-2n + 16),
+.square:nth-child(17) ~ div:nth-child(-2n + 25),
+.square:nth-child(25) ~ div:nth-child(-2n + 32),
+.square:nth-child(33) ~ div:nth-child(-2n + 41),
+.square:nth-child(41) ~ div:nth-child(-2n + 48),
+.square:nth-child(49) ~ div:nth-child(-2n + 57),
+.square:nth-child(57) ~ div:nth-child(-2n + 64) {
+    background-color: #8b8989;
+}
+
+.square:nth-child(58) {
+    border-bottom-left-radius: 10px;
+    border-style: solid;
+    border-color: #000;
+    border-width: 0px 0px 2px 2px;
+}
+.square:nth-child(65) {
+    border-bottom-right-radius: 10px;
+    border-style: solid;
+    border-color: #000;
+    border-width: 0px 2px 2px 0px;
+}
+.square:nth-child(2) {
+    border-top-left-radius: 10px;
+    border-style: solid;
+    border-color: #000;
+    border-width: 2px 0px 0px 2px;
+}
+.square:nth-child(9) {
+    border-top-right-radius: 10px;
+    border-style: solid;
+    border-color: #000;
+    border-width: 2px 2px 0px 0px;
+}
+
+.square:nth-child(58) ~ div:nth-child(-1n + 64) {
+    border-style: solid;
+    border-color: #000;
+    border-width: 0px 0px 2px 0px;
+}
+
+.square:nth-child(2) ~ div:nth-child(-1n + 8) {
+    border-style: solid;
+    border-color: #000;
+    border-width: 2px 0px 0px 0px;
+}
+
+/* Right border */
+.square:nth-child(8n + 1) {
+    border-right: 2px solid #000;
+}
+
+/* Left border */
+.square:nth-child(8n - 6) {
+    border-left: 2px solid #000;
+}
+
+@keyframes pawnIdleAnimation {
+    0% {
+        transform: rotate(0deg);
+        transform-origin: bottom;
+    }
+    50% {
+        transform: rotate(6deg);
+        transform-origin: bottom;
+    }
+    100% {
+        transform: rotate(0deg);
+        transform-origin: bottom;
+    }
+}
+
+.pieceImage {
+    width: 100%;
+    height: auto;
+}
+
+.pieceImage.pieceState-Ready {
+    animation: pawnIdleAnimation 1s infinite linear alternate;
+}
+
+.squareWhite .pieceImage {
+    filter: hue-rotate(0deg);
+}
+
+.squareBlack .pieceImage {
+    filter: hue-rotate(260deg) invert(100%);
+}
+
+.squareBlack .pieceImage.piece-Q,
+.squareBlack .pieceImage.piece-K {
+    filter: hue-rotate(350deg) invert(100%);
+}
+
+.squareBlack .pieceImage.piece-R,
+.squareBlack .pieceImage.piece-N {
+    filter: hue-rotate(300deg) invert(100%);
+}
+
+.modal {
+    position: absolute;
+    z-index: 100;
+    width: 80%;
+    padding: 20px;
+    background-color: #eee9e9;
+    border-radius: 20px;
+    border: 5px solid #323232;
+    display: flex;
+    justify-content: center;
+    color: #323232;
+}
+
+.gameStart {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+s .gameStart h1 {
+    margin: 0 0 10px 0;
+}
+
+.gameStart p {
+    margin: 0 0 20px 0;
+}
+
+.gameStart p:last-child {
+    margin: 20px 0 0 0;
+    font-style: italic;
+    font-size: 0.8rem;
+}
+
+.button {
+    font-size: 1.2rem;
+    font-weight: bold;
+    background-color: #cdc9c9;
+    border-radius: 15px;
+    padding: 10px 20px;
+    box-shadow: none;
+    border: 2px solid #000000;
+    cursor: pointer;
+    color: #8b8989;
+    outline: none;
+}
+
+.button:active {
+    color: #ffffff;
+    background-color: #a1a1a1;
+}
+
+.gameStart .button {
+    font-size: 1.6rem;
+}
+
+.notification {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.notification p {
+    margin: 0 0 20px 0;
+    max-height: 60vh;
+    overflow: scroll;
+}
+
+.helpButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 48px;
+    height: 48px;
+}
+
+.helpLink {
+    text-decoration: underline;
+    color: #323232;
+    font-weight: bold;
+}
+
+ul {
+    list-style: none;
+    font-size: min(20px, 4vw);
+    padding: 0;
+    font-weight: bold;
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    color: #323232;
+}
+
+li {
+    opacity: 0.5;
+    line-height: 1.7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: opacity 0.2s ease-in-out;
+    text-align: center;
+}
+
+li img {
+    width: 20vw;
+    height: 20vw;
+    margin-top: 0vw;
+    margin-bottom: 2.1vw;
+}
+
+li[data-your-turn='true'] {
+    opacity: 1;
+}
