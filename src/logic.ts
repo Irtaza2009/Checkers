@@ -1,4 +1,4 @@
-import type { PlayerId, RuneClient } from "rune-games-sdk/multiplayer"
+import type { PlayerId, DuskClient } from "dusk-games-sdk/multiplayer"
 import {
   OwnedPiece,
   Player,
@@ -6,7 +6,6 @@ import {
   initialBoardState,
   BattleState,
   Piece,
-  playerName,
   boardSize,
 } from "./types"
 import { getPiece } from "./utils"
@@ -38,7 +37,7 @@ type GameActions = {
 }
 
 declare global {
-  const Rune: RuneClient<GameState, GameActions>
+  const Dusk: DuskClient<GameState, GameActions>
 }
 
 const endTurn = (game: GameState) => {
@@ -55,7 +54,7 @@ const movePiece = (
 
   // Promotion check
   const [player, pieceType] = getPiece(game.board[newSquareId])
-  const [x, y] = newSquareId.split(",").map(Number)
+  const [x] = newSquareId.split(",").map(Number)
   if (pieceType === Piece.Checkers && (x === 0 || x === boardSize[1] - 1)) {
     game.board[newSquareId] = `${player}${Piece.CheckersKing}`
   }
@@ -71,7 +70,7 @@ const checkGameOver = (game: GameState) => {
 
   if (whitePieces === 0) {
     // Black wins
-    Rune.gameOver({
+    Dusk.gameOver({
       players: {
         [game.playerToId[Player.Black]]: "WON",
         [game.playerToId[Player.White]]: "LOST",
@@ -79,7 +78,7 @@ const checkGameOver = (game: GameState) => {
     })
   } else if (blackPieces === 0) {
     // White wins
-    Rune.gameOver({
+    Dusk.gameOver({
       players: {
         [game.playerToId[Player.White]]: "WON",
         [game.playerToId[Player.Black]]: "LOST",
@@ -97,14 +96,14 @@ const removePiece = (
 
     if (!game.board[squareId]) {
       console.error(`No piece found at ${squareId}`)
-      throw Rune.invalidAction()
+      throw Dusk.invalidAction()
     }
 
     const [currentPlayer] = getPiece(game.board[squareId])
 
     if (currentPlayer === game.currentPlayer) {
       console.error(`Cannot remove own piece at ${squareId}`)
-      throw Rune.invalidAction()
+      throw Dusk.invalidAction()
     }
 
     delete game.board[squareId]
@@ -112,7 +111,7 @@ const removePiece = (
   })
 }
 
-Rune.initLogic({
+Dusk.initLogic({
   minPlayers: 2,
   maxPlayers: 2,
   setup: (allPlayerIds) => {
@@ -137,19 +136,19 @@ Rune.initLogic({
   actions: {
     movePiece: ({ squareId, newSquareId }, { game }) => {
       if (game.board[squareId] === undefined) {
-        throw Rune.invalidAction()
+        throw Dusk.invalidAction()
       }
 
       const [currentPlayer] = getPiece(game.board[squareId])
 
       if (currentPlayer !== game.currentPlayer) {
-        throw Rune.invalidAction()
+        throw Dusk.invalidAction()
       }
 
       if (game.board[newSquareId] !== undefined) {
         // this requires battle
 
-        throw Rune.invalidAction()
+        throw Dusk.invalidAction()
       }
 
       movePiece({ squareId, newSquareId }, { game })

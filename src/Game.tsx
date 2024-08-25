@@ -1,4 +1,4 @@
-import { PlayerId } from "rune-games-sdk/multiplayer"
+import { PlayerId } from "dusk-games-sdk/multiplayer"
 import styles from "./Game.module.css"
 import { useCallback, useEffect, useState } from "react"
 import {
@@ -7,7 +7,6 @@ import {
   BoardState,
   SquareId,
   RenderBoardProps,
-  piecePower,
   BattleState,
   // pieceName,
   initialBoardState,
@@ -70,7 +69,7 @@ const Game = () => {
       return
     }
 
-    const [nextSquarePlayer, nextSquarePiece] = squareState
+    const [nextSquarePlayer] = squareState
     const allowedFields = getReachableFields(selectedSquare, state)
 
     if (!allowedFields.includes(square)) {
@@ -119,7 +118,7 @@ const Game = () => {
     )
 
     if (validJumpSquares.length > 0) {
-      Rune.actions.removePiece({ squareIds: validJumpSquares })
+      Dusk.actions.removePiece({ squareIds: validJumpSquares })
     }
 
     setState((prevState) => {
@@ -129,7 +128,7 @@ const Game = () => {
       return nextState
     })
 
-    Rune.actions.movePiece({ squareId: selectedSquare, newSquareId: square })
+    Dusk.actions.movePiece({ squareId: selectedSquare, newSquareId: square })
 
     const nextMoves = getReachableFields(square, state, true)
     if (nextMoves.length > 0) {
@@ -173,28 +172,25 @@ ${Object.entries(piecePower)
   }, [playBackgroundAudio])
 
   useEffect(() => {
-    Rune.initClient({
-      onChange: ({ newGame, oldGame, yourPlayerId }) => {
+    Dusk.initClient({
+      onChange: ({ game, yourPlayerId }) => {
         setYourPlayerId(yourPlayerId)
         if (!yourPlayerId) {
-          setCurrentPlayer(newGame.currentPlayer)
+          setCurrentPlayer(game.currentPlayer)
         } else {
-          setCurrentPlayer(newGame.currentPlayer)
-          setPlayer(newGame.players[yourPlayerId])
+          setCurrentPlayer(game.currentPlayer)
+          setPlayer(game.players[yourPlayerId])
         }
 
-        setState(newGame.board)
-        setBattle(newGame.battle)
-        setSelectedSquare(newGame.selectedSquare)
-        setPlayerIds(newGame.playerIds || []) // Ensure playerIds is always an array
+        setState(game.board)
+        setBattle(game.battle)
+        setSelectedSquare(game.selectedSquare)
+        setPlayerIds(game.playerIds || []) // Ensure playerIds is always an array
 
-        setLastMovePlayerId(newGame.currentPlayer || null)
+        setLastMovePlayerId(game.currentPlayer || null)
 
-        if (
-          newGame.notification &&
-          newGame.notification.timestamp !== oldGame.notification?.timestamp
-        ) {
-          setNotification(newGame.notification.message)
+        if (game.notification) {
+          setNotification(game.notification.message)
         }
       },
     })
@@ -275,7 +271,7 @@ ${Object.entries(piecePower)
 
       <ul id="playersSection">
         {playerIds.map((playerId, index) => {
-          const player = Rune.getPlayerInfo(playerId)
+          const player = Dusk.getPlayerInfo(playerId)
           const isWhiteTurn = lastMovePlayerId === "W"
           const isCurrentPlayerWhite = index === 0 // Assuming the first player is 'W'
           const shouldHighlight =

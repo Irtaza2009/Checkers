@@ -2,13 +2,8 @@
 
 The classic **Checkers** game
 
-<img alt="image" src="https://github.com/Irtaza2009/Checkers/blob/main/Checkers.png">
+<img alt="image" src="https://cloud-296zm6445-hack-club-bot.vercel.app/0image.png">
 
 ## Play
 
-To play:
-
-1. clone or fork [this repo](https://github.com/Irtaza2009/Checkers/fork).
-2. run `npm install`
-3. run `npm run dev`
-4. Enjoy!
+Playtest at: https://app.dusk.gg/dev-CByg8ews

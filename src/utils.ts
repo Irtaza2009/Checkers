@@ -54,7 +54,7 @@ export const getReachableFields = (
 
           // Recursively check for additional jumps after this one
           const newState = { ...state }
-          newState[selectedSquare] = ""
+          newState[selectedSquare] = undefined as any
           newState[jumpSquare] = state[selectedSquare]
           const continuationFields = getReachableFields(
             jumpSquare,
