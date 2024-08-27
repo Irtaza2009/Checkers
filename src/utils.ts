@@ -10,22 +10,23 @@ import {
 export const getReachableFields = (
   selectedSquare: SquareId,
   state: BoardState,
-  isContinuation: boolean = false
+  isContinuation: boolean = false,
+  visited: Set<SquareId> = new Set()
 ): SquareId[] => {
+  if (visited.has(selectedSquare)) return [] // Prevent revisiting the same square
+  visited.add(selectedSquare)
+
   const [x, y] = selectedSquare.split(",").map(Number)
   const [selectedPlayer, selectedPiece] = getPiece(state[selectedSquare])
   const fields: SquareId[] = []
 
-  // Determine the direction of movement based on the player
   const direction = selectedPlayer === "W" ? -1 : 1
 
-  // Potential move directions (left and right diagonal)
   const moves = [
-    [direction, -1], // Forward-left
-    [direction, 1], // Forward-right
+    [direction, -1],
+    [direction, 1],
   ]
 
-  // Additional moves for kings (can move backward too)
   if (selectedPiece === Piece.CheckersKing) {
     moves.push([-direction, -1]) // Backward-left
     moves.push([-direction, 1]) // Backward-right
@@ -40,7 +41,7 @@ export const getReachableFields = (
       const [targetPlayer] = getPiece(state[targetSquare])
 
       if (!targetPlayer) {
-        // Normal move to an empty square (only allowed if not a continuation of a jump)
+        // Normal move to an empty square
         if (!isContinuation) {
           fields.push(targetSquare)
         }
@@ -52,14 +53,18 @@ export const getReachableFields = (
         if (isValidMove(jumpX, jumpY) && !getPiece(state[jumpSquare])[0]) {
           fields.push(jumpSquare)
 
-          // Recursively check for additional jumps after this one
+          // Update state to reflect the jump
           const newState = { ...state }
           newState[selectedSquare] = undefined as any
+          newState[targetSquare] = undefined as any
           newState[jumpSquare] = state[selectedSquare]
+
+          // Recursively check for additional jumps after this one in all directions
           const continuationFields = getReachableFields(
             jumpSquare,
             newState,
-            true
+            true,
+            new Set(visited) // Pass a copy of visited
           )
           fields.push(...continuationFields)
         }
